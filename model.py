@@ -356,13 +356,12 @@ compression_factor=0.7
 model = dense_model(filter1, filter2, num_block, compression_factor, droprate, weight_decay)   
 model.compile(loss='binary_crossentropy', optimizer=keras.optimizers.SGD(learning_rate=cos_decay_ann), metrics=["AUC"])
 early_stopping = keras.callbacks.EarlyStopping(monitor='val_loss', patience=40) 
-csv_logger = keras.callbacks.CSVLogger('./Model log%s.csv' %str(k), append=False, separator=';')
-checkpointer = keras.callbacks.ModelCheckpoint(filepath='bestmodel at iter%s.h5' %str(k), verbose=1, save_best_only=True, monitor='val_auc', mode='max')
+csv_logger = keras.callbacks.CSVLogger('model log.csv', append=False, separator=';')
+checkpointer = keras.callbacks.ModelCheckpoint(filepath='bestmodel.h5', verbose=1, save_best_only=True, monitor='val_auc', mode='max')
 history=model.fit_generator(DataGenerator(train_ID, train_image1F, train_image2F, train_VPI, 
                                           augvol, normcat1, **params),
                             epochs=no_epoch,
                             validation_data=([tune_image1FNC, tune_image2FNC], tune_VPI),
                             verbose=1, 
                             callbacks=[early_stopping, csv_logger, checkpointer])
-model.save('VPI2_2F_iter%s.h5' %str(k))
-
+model.save('model.h5')
