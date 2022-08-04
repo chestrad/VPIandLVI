@@ -13,6 +13,7 @@ from tensorflow import keras
 from tensorflow.keras import layers 
 
 #CT data normalization using three different pixel value ranges 
+#Three different min-max normalization ranges were chosen to extract maximal information from the tumor patches 
 
 MIN_BOUND = -1024.0
 MAX_BOUND = 100.0
@@ -26,7 +27,7 @@ def normalize0(image):
 MIN_BOUND1 = -850.0
 MAX_BOUND1 = -400.0  
     
-def normalize1(image): #may not be useful!
+def normalize1(image): 
     image = (image - MIN_BOUND1) / (MAX_BOUND1 - MIN_BOUND1)
     image[image>1] = 1.
     image[image<0] = 0.
@@ -41,9 +42,9 @@ def normalize2(image):
     image[image<0] = 0.
     return image
 
-#Normalized CT data were concatenated to form 3 channels
+#Then, the normalized CT data were concatenated to form 3 channels
 
-def normcat(image, dimension): #for validation and test sets
+def normcat(image, dimension): #normalization and concatenation for the validation and test sets
     
     numfiles=image.shape[0]
     image=image.reshape(numfiles, dimension, dimension, dimension)
@@ -75,7 +76,7 @@ def normcat(image, dimension): #for validation and test sets
     
     return concatimage
 
-def normcat1(image, dimension): #for the generator (training set)
+def normcat1(image, dimension): #for the data generator (i.e., training set)
      
     data_images0=normalize0(image) 
     data_images1=normalize1(image)
@@ -158,15 +159,18 @@ def augvol(image1, image2):
         imageaug2 = image2
     return imageaug1, imageaug2       
 
-#Generator
+#Data generator
+#Two inputs of different dimensions were used: (n, 30, 30, 30, 1) and (n, 60, 60, 60, 1)
+#Three-dimensional cubic tumor patch that fit the tumor boundary and eight-times larger cubic patch (twice larger sides) were obtained and used
+#The prediction target (labels: either visceral pleural invasion or lymphovascular invasion) is binary
 
 class DataGenerator(keras.utils.Sequence): 
     def __init__(self, list_IDs, inputdata1, inputdata2, labels, augvol, normcat1, batch_size, dim1, dim2, n_channels, shuffle):
         'Initialization'
         self.list_IDs = list_IDs 
-        self.inputdata1 = inputdata1
-        self.inputdata2 = inputdata2
-        self.labels = labels
+        self.inputdata1 = inputdata1 #(n, 30, 30, 30, 1)
+        self.inputdata2 = inputdata2 #(n, 60, 60, 60, 1) #eight-times larger patch
+        self.labels = labels #prediction target: either visceral pleural invasion or lymphovascular invasion 
         self.batch_size = batch_size
         self.dim1 = dim1
         self.dim2 = dim2
@@ -185,7 +189,6 @@ class DataGenerator(keras.utils.Sequence):
         indexes = self.indexes[index*self.batch_size:(index+1)*self.batch_size]
 
         # Find list of IDs
-
         list_IDs_temp = [self.list_IDs[k] for k in indexes]
         
         # Generate data        
@@ -244,7 +247,6 @@ def dense_block(x, repetition):
     return x
 
 def transition_layer(x, compression_factor, droprate, weight_decay): 
-    #weight_decay=1E-4
     x = layers.BatchNormalization(axis=-1, gamma_regularizer=keras.regularizers.l2(weight_decay), beta_regularizer=keras.regularizers.l2(weight_decay))(x)
     x = layers.Activation('relu')(x)
     num_feature_maps = x.shape[-1]
