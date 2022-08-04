@@ -159,7 +159,7 @@ def augvol(image1, image2):
         imageaug2 = image2
     return imageaug1, imageaug2       
 
-#Data generator
+#Data generator (reference: https://stanford.edu/~shervine/blog/keras-how-to-generate-data-on-the-fly)
 #Two inputs of different dimensions were used: (n, 30, 30, 30, 1) and (n, 60, 60, 60, 1)
 #Three-dimensional cubic tumor patch that fit the tumor boundary and eight-times larger cubic patch (twice larger sides) were obtained and used
 #The prediction target (labels: either visceral pleural invasion or lymphovascular invasion) is binary
