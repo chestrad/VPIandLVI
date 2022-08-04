@@ -338,6 +338,7 @@ def dense_model(filter1, filter2, num_block, compression_factor, droprate, weigh
 cos_decay_ann = tf.keras.experimental.CosineDecayRestarts(initial_learning_rate=0.001, first_decay_steps=60, t_mul=2, m_mul=0.95, alpha=0.01) 
 
 # Model with exampleary hyperparameters
+
 no_epoch=800
 params = {'dim1':(30,30,30),
           'dim2':(60,60,60), 
