@@ -9,5 +9,6 @@ ___________
 #### Dataset
 ##### Data are available from the authors upon reasonable request (for the research purpose-only and IRB approval is required).
 ____________
-##### Models are available from the authors upon reasonable request.
+#### Model
+##### Models are also available from the authors upon reasonable request.
 
